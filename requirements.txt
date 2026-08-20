@@ -1,14 +1,14 @@
 # ==========================================================
-# Copyright (c) 2026 ArtistBots
+# Copyright (c) 2026 COPYxMUSIC
 # All Rights Reserved.
 # 
-# Project      : ArtistBots API Telegram Music Bot
-# Powered By   : Artist
+# Project      : COPYxMUSIC API Telegram Music Bot
+# Powered By   : Copu
 # Type         : API Based Telegram Music Bot
 #
-# Bot          : @ArtistApibot
-# Channel      : https://t.me/artistbots
-# GitHub       : https://github.com/elevenyts/ArtistMusic
+# Bot          : @COPYxMUSIC_BOT
+# Channel      : https://t.me/CopymusicOfficial
+# GitHub       : 
 #
 # Unauthorized copying, modification, or redistribution
 # of this source code without permission is prohibited.
