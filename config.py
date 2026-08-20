@@ -68,7 +68,7 @@ class Config:
         self.COOKIES_URL: List[str] = self._parse_cookies()
 
         # Images
-        self.DEFAULT_THUMB: str = getenv("DEFAULT_THUMB", "https://files.catbox.moe/3p0du3.jpeg")
+        self.DEFAULT_THUMB: str = getenv("DEFAULT_THUMB", "https://graph.org/file/e8a0d00b9dbb518fbfdeb-c2e6a5a3a24a335275.jpg")
         self.PING_IMG: str = getenv("PING_IMG", "https://graph.org/file/e8a0d00b9dbb518fbfdeb-c2e6a5a3a24a335275.jpg")
         self.START_IMG: str = getenv("START_IMG", "https://graph.org/file/e8a0d00b9dbb518fbfdeb-c2e6a5a3a24a335275.jpg")
         self.RADIO_IMG: str = getenv("RADIO_IMG", "https://graph.org/file/e8a0d00b9dbb518fbfdeb-c2e6a5a3a24a335275.jpg")
