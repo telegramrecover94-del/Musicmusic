@@ -2,13 +2,13 @@
 # Copyright (c) 2026 ArtistBots
 # All Rights Reserved.
 #
-# Project      : ArtistBots API Telegram Music Bot
-# Powered By   : Artist 
+# Project      : COPYxMUSIC API Telegram Music Bot
+# Powered By   : COPY 
 # Type         : API Based Telegram Music Bot
 #
-# Bot          : @ArtistApibot
-# Channel      : https://t.me/artistbots
-# GitHub       : https://github.com/elevenyts/ArtistMusic
+# Bot          : @COPYxMUSIC_BOT
+# Channel      : https://t.me/CopymusicOfficial
+# GitHub       : 
 #
 # Unauthorized copying, modification, or redistribution
 # of this source code without permission is prohibited.
@@ -43,8 +43,8 @@ class Config:
         self.SESSION3: str = getenv("STRING_SESSION3", "")
 
         # Support Links
-        self.SUPPORT_CHANNEL: str = getenv("SUPPORT_CHANNEL", "https://t.me/Elevenytschats")
-        self.SUPPORT_CHAT: str = getenv("SUPPORT_CHAT", "https://t.me/Artistbots")
+        self.SUPPORT_CHANNEL: str = getenv("SUPPORT_CHANNEL", "https://t.me/CopymusicOfficial")
+        self.SUPPORT_CHAT: str = getenv("SUPPORT_CHAT", "https://t.me/CopyTRY")
 
         # Excluded Chats
         self.EXCLUDED_CHATS: List[int] = self._parse_excluded_chats()
@@ -69,9 +69,9 @@ class Config:
 
         # Images
         self.DEFAULT_THUMB: str = getenv("DEFAULT_THUMB", "https://files.catbox.moe/3p0du3.jpeg")
-        self.PING_IMG: str = getenv("PING_IMG", "https://files.catbox.moe/3p0du3.jpeg")
-        self.START_IMG: str = getenv("START_IMG", "https://files.catbox.moe/3p0du3.jpeg")
-        self.RADIO_IMG: str = getenv("RADIO_IMG", "https://files.catbox.moe/3p0du3.jpeg")
+        self.PING_IMG: str = getenv("PING_IMG", "https://graph.org/file/e8a0d00b9dbb518fbfdeb-c2e6a5a3a24a335275.jpg")
+        self.START_IMG: str = getenv("START_IMG", "https://graph.org/file/e8a0d00b9dbb518fbfdeb-c2e6a5a3a24a335275.jpg")
+        self.RADIO_IMG: str = getenv("RADIO_IMG", "https://graph.org/file/e8a0d00b9dbb518fbfdeb-c2e6a5a3a24a335275.jpg")
         
         # Moderation
         self.EXCLUDED_USERNAMES: List[str] = getenv("EXCLUDED_USERNAMES", "").split()
