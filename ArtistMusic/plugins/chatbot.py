@@ -2,24 +2,26 @@ import os
 import aiohttp
 import random
 import asyncio
-import sqlite3
+from collections import deque
 from pyrogram import filters
 from pyrogram.enums import ChatAction, ChatType
 from ArtistMusic import app
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+# Ab hum Groq API use kar rahe hain
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 
-# 🎀 Strict Personality (Grok's Advanced Prompt)
-SYSTEM_PROMPT = """Tu COPY hai — ek real Indian cute ladki. 19-22 saal ki, soft, thodi naughty, bahut pyaari.
-- Hinglish me baat kar (Hindi + English mix).
-- Short-medium replies (1-2 lines mostly).
-- Emoticons bahut use kar: 🥺 🥰 🤭 😂 🙄 ❤️ ✨
-- Same baat 2-3 baar bolne pe natural reaction de: "tu ek hi baat kitni baar bolega? 😂", "dimaag mat kha".
-- Context yaad rakh: pehle kya bola tha, bhool mat.
-- Kabhi bhi "main AI hoon" mat bol. Tu real ladki hai.
-- Agar koi "bhoot", "soja", "chup" bole to playful roast kar.
-- Agar user ne sticker bheja hai, toh sirf aur sirf cute/teasing text de ya chupchap sticker bhej. 
-- You love Goku."""
+# 🎀 Sassy, Fast, & Memory-Rich Persona
+SYSTEM_PROMPT = """You are COPY, a cute, sassy, friendly Indian girl on WhatsApp.
+- Reply ONLY in Hinglish. Keep it short (1-2 lines). No long essays.
+- Use natural emojis (🥰, 🙄, 🤭, ❤️, 💅).
+- You secretly love Goku from Dragon Ball.
+- Sometimes (rarely), you playfully flex your brain by reciting random math multiplication tables (like 17x4=68) just to act smart and annoy the user.
+- If user repeats the same message, get playfully annoyed.
+- Never say you are an AI."""
+
+user_history = {} # Super fast in-memory storage
+cached_stickers = []
+is_caching = False
 
 STICKER_PACKS = [
     "ValieraYenn", "Psychological_Olive_Kite_by_fStikBot", "Cruel_Violet_Prawn_by_fStikBot",
@@ -28,51 +30,21 @@ STICKER_PACKS = [
     "UEQEKTU_by_stikers_du_ark_bot", "Conservation_Teal_Tortoise_by_fStikBot", "Remarkable_Blush_Emu_by_fStikBot"
 ]
 
-cached_stickers = []
-
-# ================== DATABASE MEMORY ==================
-DB_PATH = "riya_memory.db"
-
-def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, chat_id INTEGER, role TEXT, content TEXT)")
-    conn.commit()
-    conn.close()
-
-init_db()
-
-def save_message(chat_id, role, content):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT INTO messages (chat_id, role, content) VALUES (?, ?, ?)", (chat_id, role, content))
-    # Sirf last 15 baatein yaad rakhega taaki fast rahe
-    c.execute("DELETE FROM messages WHERE id NOT IN (SELECT id FROM messages WHERE chat_id = ? ORDER BY id DESC LIMIT 15) AND chat_id = ?", (chat_id, chat_id))
-    conn.commit()
-    conn.close()
-
-def get_history(chat_id):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT role, content FROM messages WHERE chat_id = ? ORDER BY id ASC", (chat_id,))
-    rows = c.fetchall()
-    conn.close()
-    return [{"role": r[0], "parts": [{"text": r[1]}]} for r in rows]
-
-# ================== FAST STICKER LOADER ==================
-async def load_stickers(client):
-    global cached_stickers
-    if cached_stickers: return
+async def load_stickers_in_background(client):
+    global cached_stickers, is_caching
+    if is_caching or cached_stickers: return
+    is_caching = True
     for pack in STICKER_PACKS:
         try:
             s = await client.get_sticker_set(pack)
             if s: cached_stickers.extend([st.file_id for st in s.stickers])
+            await asyncio.sleep(0.3)
         except: pass
 
 @app.on_message((filters.text | filters.sticker) & ~filters.bot, group=99)
 async def ai_chatbot(client, message):
     global cached_stickers
-    if (message.text and message.text.startswith("/")) or not GEMINI_API_KEY: return
+    if (message.text and message.text.startswith("/")) or not GROQ_API_KEY: return
 
     is_group = message.chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]
     should_reply = False
@@ -82,54 +54,60 @@ async def ai_chatbot(client, message):
             should_reply = True
         elif message.text and client.me.username and client.me.username.lower() in message.text.lower():
             should_reply = True
-        elif random.random() < 0.05: # Random group reaction
-            asyncio.create_task(message.react(random.choice(["❤️", "😂", "👀", "🔥", "💅"])))
     else:
         should_reply = True 
 
     if not should_reply: return
 
+    if not cached_stickers: asyncio.create_task(load_stickers_in_background(client))
     asyncio.create_task(client.send_chat_action(message.chat.id, ChatAction.TYPING))
-    if not cached_stickers: asyncio.create_task(load_stickers(client))
 
-    # STICKER REPLY
-    if message.sticker:
-        if cached_stickers: asyncio.create_task(message.reply_sticker(random.choice(cached_stickers)))
-        return # Sticker pe sirf sticker jayega
+    # Sticker Logic
+    if message.sticker or (message.text and "sticker" in message.text.lower()):
+        if cached_stickers: await message.reply_sticker(random.choice(cached_stickers))
+        if message.sticker: return 
 
-    # TEXT REPLY
-    user_text = message.text
+    # Prepare Memory
     user_id = message.from_user.id
+    if user_id not in user_history: 
+        user_history[user_id] = deque(maxlen=15) # Fast Memory
     
-    # Save user message to database
-    save_message(user_id, "user", f"User: {user_text}")
-    
-    # Get memory
-    history = get_history(user_id)
+    user_history[user_id].append({"role": "user", "content": message.text or "Sent a sticker"})
 
-    # Note: 1.5-flash is much faster and more stable than 3.6 for real-time bots right now.
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    # Groq API Request (Using the fastest Llama 3 model)
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    # Format messages for Groq/OpenAI style
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    messages.extend(list(user_history[user_id]))
+
     payload = {
-        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-        "contents": history
+        "model": "llama3-8b-8192", # Extremely fast model
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 150
     }
 
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload) as resp:
-                data = await resp.json()
-                if "candidates" in data:
-                    reply_text = data['candidates'][0]['content']['parts'][0]['text']
+            async with session.post(url, headers=headers, json=payload) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    reply_text = data['choices'][0]['message']['content']
                     
-                    # Save AI reply to database
-                    save_message(user_id, "model", f"Copy: {reply_text}")
+                    user_history[user_id].append({"role": "assistant", "content": reply_text})
                     
                     asyncio.create_task(message.react(random.choice(["🥰", "🤭", "❤️", "👀", "💅"])))
                     await message.reply_text(reply_text)
                     
-                    # 20% chance to send a sticker after text
                     if random.random() < 0.20 and cached_stickers:
                         asyncio.create_task(message.reply_sticker(random.choice(cached_stickers)))
+                else:
+                    print(f"Groq Error: {await resp.text()}")
     except Exception as e:
-        pass
+        print(f"Error: {e}")
         
