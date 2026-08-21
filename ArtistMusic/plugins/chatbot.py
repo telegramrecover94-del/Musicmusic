@@ -98,8 +98,8 @@ async def ai_chatbot(client, message):
     if len(user_history[user_id]) > MAX_HISTORY * 2:
         user_history[user_id] = user_history[user_id][-(MAX_HISTORY * 2):]
 
-    # Ekdum Naya aur Fast Model 2.5
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    # Ekdum Latest Model 3.6 jo Google maang raha hai
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={GEMINI_API_KEY}"
     payload = {
         "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
         "contents": user_history[user_id]
