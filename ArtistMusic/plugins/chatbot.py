@@ -1,24 +1,22 @@
 import os
-import aiohttp
 import random
 import asyncio
-from pyrogram import filters
+from pyrogram import filters, Client
 from pyrogram.enums import ChatAction, ChatType
 from ArtistMusic import app
+import google.generativeai as genai
 
+# Setup Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-# 🎀 Strict Personality (Jo bola jaye wahi karegi)
-SYSTEM_PROMPT = """You are COPY, a cute Indian girl. 
-RULES:
-1. If user sends a sticker, send a sticker back. ONLY sticker. No text.
-2. If user asks you to send a sticker, send it immediately. Do not make excuses.
-3. Keep text replies short (1 line). 
-4. Never say "imagine it" or "network issue".
-5. You love Goku stickers."""
+SYSTEM_PROMPT = """You are COPY, a cute, sassy, and friendly Indian girl. 
+Rules: 1. Keep replies VERY short (1-2 lines). 2. Use Hinglish. 3. Use 1-2 natural emojis. 4. Never mention being an AI. 
+5. If user sends sticker -> send sticker back. If user asks for sticker -> send sticker. 6. Be witty and teasing."""
 
-user_history = {}
-MAX_HISTORY = 10
+user_memory = {}
+cached_stickers = []
 
 STICKER_PACKS = [
     "ValieraYenn", "Psychological_Olive_Kite_by_fStikBot", "Cruel_Violet_Prawn_by_fStikBot",
@@ -27,48 +25,45 @@ STICKER_PACKS = [
     "UEQEKTU_by_stikers_du_ark_bot", "Conservation_Teal_Tortoise_by_fStikBot", "Remarkable_Blush_Emu_by_fStikBot"
 ]
 
-cached_stickers = []
-is_caching = False
-
+# Background task to load stickers once
 async def load_stickers(client):
-    global cached_stickers, is_caching
-    if cached_stickers: return
-    is_caching = True
+    global cached_stickers
     for pack in STICKER_PACKS:
         try:
             s = await client.get_sticker_set(pack)
-            if s: cached_stickers.extend([st.file_id for st in s.stickers])
-        except: pass
+            cached_stickers.extend([st.file_id for st in s.stickers])
+        except: continue
 
 @app.on_message((filters.text | filters.sticker) & ~filters.bot, group=99)
 async def ai_chatbot(client, message):
     global cached_stickers
-    if (message.text and message.text.startswith("/")) or not GEMINI_API_KEY: return
-    
-    # Background load
-    if not cached_stickers: asyncio.create_task(load_stickers(client))
+    if not cached_stickers: await load_stickers(client)
 
-    # STICKER REPLY LOGIC (Prioritized)
-    is_sticker_request = message.text and ("sticker" in message.text.lower() or "bhejo" in message.text.lower())
-    
-    if message.sticker or is_sticker_request:
-        if cached_stickers:
-            await message.reply_sticker(random.choice(cached_stickers))
-            if message.sticker: return # Sirf sticker bhejegi text nahi
+    # Reaction Logic
+    if random.random() < 0.1: 
+        try: await message.react(random.choice(["❤️", "🔥", "🥰"]))
+        except: pass
 
-    # TEXT REPLY LOGIC
-    user_text = message.text or "[Sticker sent]"
+    # Sticker to Sticker logic
+    if message.sticker:
+        if cached_stickers: await message.reply_sticker(random.choice(cached_stickers))
+        return
+
+    # Text Logic
+    await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+    
     user_id = message.from_user.id
-    if user_id not in user_history: user_history[user_id] = []
-    user_history[user_id].append({"role": "user", "parts": [{"text": user_text}]})
+    if user_id not in user_memory: user_memory[user_id] = []
+    
+    # Simple Memory
+    user_memory[user_id].append(message.text)
+    if len(user_memory[user_id]) > 10: user_memory[user_id].pop(0)
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={GEMINI_API_KEY}"
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, json={"system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]}, "contents": user_history[user_id]}) as resp:
-                data = await resp.json()
-                if "candidates" in data:
-                    reply_text = data['candidates'][0]['content']['parts'][0]['text']
-                    await message.reply_text(reply_text)
-    except: pass
+        response = model.generate_content(f"{SYSTEM_PROMPT}\nHistory: {user_memory[user_id]}\nUser: {message.text}")
+        await message.reply_text(response.text)
+        # 20% chance to send sticker with text
+        if random.random() < 0.2 and cached_stickers: await message.reply_sticker(random.choice(cached_stickers))
+    except Exception as e:
+        print(f"Error: {e}")
         
