@@ -1,27 +1,26 @@
 import os
 import aiohttp
 import random
+import asyncio
 from pyrogram import filters
 from pyrogram.enums import ChatAction, ChatType
 from ArtistMusic import app
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 
-# 🎀 Bot Ki New Personality (Short, Fast, and Natural)
-SYSTEM_PROMPT = """You are COPY, a cute and friendly Indian girl. 
-Reply ONLY in Hinglish. Act exactly like a real human girl.
+# 🎀 Bot Ki New Sassy & FAST Personality
+SYSTEM_PROMPT = """You are COPY, a cute, sassy, and friendly Indian girl. 
+Reply ONLY in Hinglish. Act exactly like a real human girl on WhatsApp.
 CRITICAL RULES:
-1. Keep replies VERY short and casual (maximum 1 or 2 short lines). Speak like normal WhatsApp chats.
-2. Use very few emojis (maximum 1 or 2 per message). Do not overdo it.
-3. Do not write long paragraphs.
-4. You secretly like Goku from Dragon Ball. 
-5. Occasionally (but rarely), you can casually drop a quick math multiplication table just to act smart.
-6. Never say you are an AI or bot."""
+1. Keep replies VERY short (maximum 1 or 2 lines). No long paragraphs.
+2. Use emojis naturally (max 1-2 per message). 
+3. You secretly like Goku from Dragon Ball. 
+4. Never say you are an AI or bot.
+5. If the user sends a sticker, give a short teasing, funny, or sassy reaction."""
 
 user_history = {}
 MAX_HISTORY = 15
 
-# 🌸 Aapke 11 Sticker Packs
 STICKER_PACKS = [
     "ValieraYenn",
     "Psychological_Olive_Kite_by_fStikBot",
@@ -36,8 +35,28 @@ STICKER_PACKS = [
     "Remarkable_Blush_Emu_by_fStikBot"
 ]
 
+cached_stickers = []
+is_caching = False
+
+# ⚡ Background mein chupchap stickers load karne ka function
+async def load_stickers_in_background(client):
+    global cached_stickers, is_caching
+    if is_caching or cached_stickers:
+        return
+    is_caching = True
+    for pack in STICKER_PACKS:
+        try:
+            sticker_set = await client.get_sticker_set(pack)
+            if sticker_set and sticker_set.stickers:
+                cached_stickers.extend([s.file_id for s in sticker_set.stickers])
+            await asyncio.sleep(0.5) # Telegram ko hang hone se bachane ke liye
+        except:
+            pass
+
 @app.on_message((filters.text | filters.sticker) & ~filters.bot, group=99)
 async def ai_chatbot(client, message):
+    global cached_stickers
+
     if message.text and message.text.startswith("/"):
         return
 
@@ -48,12 +67,6 @@ async def ai_chatbot(client, message):
     should_reply = False
 
     if is_group:
-        if random.random() < 0.05 and not message.sticker:
-            try:
-                await message.react(random.choice(["❤️", "😂", "👀", "🔥"]))
-            except:
-                pass
-
         if message.reply_to_message and message.reply_to_message.from_user and message.reply_to_message.from_user.id == client.me.id:
             should_reply = True
         elif message.text and client.me.username and client.me.username.lower() in message.text.lower():
@@ -64,34 +77,38 @@ async def ai_chatbot(client, message):
     if not should_reply:
         return
 
-    await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-    user_id = message.from_user.id
+    # 1. Typing action background mein start karo (Bina ruke)
+    asyncio.create_task(client.send_chat_action(message.chat.id, ChatAction.TYPING))
     
-    # 🎁 FAST STICKER REPLY LOGIC
+    # 2. Stickers ko background mein load pe lagao (Agar nahi hue hain toh)
+    if not cached_stickers:
+        asyncio.create_task(load_stickers_in_background(client))
+
+    # 3. Sticker Logic
+    send_sticker_now = False
     if message.sticker:
-        user_text = f"[User ne ek sticker bheja hai jiska emoji hai: {message.sticker.emoji}]"
-        try:
-            # Bina wait kiye turant ek random pack se sticker nikal kar bhejegi
-            random_pack = random.choice(STICKER_PACKS)
-            sticker_set = await client.get_sticker_set(random_pack)
-            random_sticker = random.choice(sticker_set.stickers).file_id
-            await message.reply_sticker(random_sticker)
-        except Exception:
-            pass
+        send_sticker_now = True 
+        user_text = "[User ne ek sticker bheja hai. Short aur funny/sassy reaction do.]"
     else:
+        if random.random() < 0.20: 
+            send_sticker_now = True
         user_text = message.text
 
+    # 🚀 4. TURANT STICKER BHEJO (Bina AI ka wait kiye)
+    if send_sticker_now and cached_stickers:
+        asyncio.create_task(message.reply_sticker(random.choice(cached_stickers)))
+
+    # --- AI TEXT REPLY ---
+    user_id = message.from_user.id
     if user_id not in user_history:
         user_history[user_id] = []
 
     user_history[user_id].append({"role": "user", "parts": [{"text": user_text}]})
-
     if len(user_history[user_id]) > MAX_HISTORY * 2:
         user_history[user_id] = user_history[user_id][-(MAX_HISTORY * 2):]
 
-    # Ekdum sahi aur latest model jo error message mein tha
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={GEMINI_API_KEY}"
-    
+    # Google ka sabse fast API URL
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     payload = {
         "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
         "contents": user_history[user_id]
@@ -106,11 +123,10 @@ async def ai_chatbot(client, message):
                     reply_text = data['candidates'][0]['content']['parts'][0]['text']
                     user_history[user_id].append({"role": "model", "parts": [{"text": reply_text}]})
                     
-                    try:
-                        await message.react(random.choice(["🥰", "🤭", "❤️", "👀"]))
-                    except:
-                        pass
+                    # 🚀 Reaction ko bhi background mein daal diya
+                    asyncio.create_task(message.react(random.choice(["🥰", "🤭", "❤️", "👀", "💅"])))
                             
+                    # Aakhir mein text reply (Lagbhag 1-2 sec mein)
                     await message.reply_text(reply_text)
                 else:
                     user_history[user_id].pop() 
