@@ -4,15 +4,141 @@
 #
 # Project      : COPYxMUSIC API Telegram Music Bot
 # Powered By   : Copy
-# Type         : API Based Telegram Music Bot
-#
-# Bot          : @COPYxMUSIC_BOT
-# Channel      : https://t.me/CopymusicOfficial
-# GitHub       : 
-#
-# Unauthorized copying, modification, or redistribution
-# of this source code without permission is prohibited.
 # ==========================================================
-import base64
-_CODE = b"""IyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09CiMgQ29weXJpZ2h0IChjKSAyMDI2IENPUFl4TVVTSUMgCiMgQWxsIFJpZ2h0cyBSZXNlcnZlZC4KIwojIFByb2plY3QgICAgICA6IENPUFl4TVVTSUMgQVBJIFRlbGVncmFtIE11c2ljIEJvdAojIFBvd2VyZWQgQnkgICA6IENvcHkKIyBUeXBlICAgICAgICAgOiBBUEkgQmFzZWQgVGVsZWdyYW0gTXVzaWMgQm90CiMKIyBCb3QgICAgICAgICAgOiBAQ09QWXhNVVNJQ19CT1QKIyBDaGFubmVsICAgICAgOiBodHRwczovL3QubWUvQ29weW11c2ljT2ZmaWNpYWwKIyBHaXRIdWIgICAgICAgOiAKIwojIFVuYXV0aG9yaXplZCBjb3B5aW5nLCBtb2RpZmljYXRpb24sIG9yIHJlZGlzdHJpYnV0aW9uCiMgb2YgdGhpcyBzb3VyY2UgY29kZSB3aXRob3V0IHBlcm1pc3Npb24gaXMgcHJvaGliaXRlZC4KIyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KaW1wb3J0IG9zCmltcG9ydCBhc3luY2lvCmltcG9ydCBhaW9odHRwCmZyb20gUElMIGltcG9ydCAoCiAgICBJbWFnZSwKICAgIEltYWdlRHJhdywKICAgIEltYWdlRmlsdGVyLAogICAgSW1hZ2VGb250CikKZnJvbSBBcnRpc3RNdXNpYyBpbXBvcnQgY29uZmlnCmZyb20gQXJ0aXN0TXVzaWMuaGVscGVycyBpbXBvcnQgVHJhY2sKClNJWkUgPSAoMTI4MCwgNzIwKQpCUkFORF9URVhUID0gIuKcpiDwnZeU8J2Xv/CdmIHwnZe28J2YgPCdmIHwnZeV8J2XvPCdmIHwnZiAIOKcpiIKQlJBTkRfWCA9IDQwCkJSQU5EX1kgPSAzMApBQ0NFTlRfQ09MT1IgPSAoMjU1LCAxOTYsIDYxLCAyNTUpICAgIyB5ZWxsb3cgLSB1c2VkIGZvciAiQiIKUkVEX0NPTE9SID0gKDIzMCwgNTcsIDUzLCAyNTUpICAgICAgICMgcmVkIC0gdXNlZCBmb3IgIkEiClBJTExfQ09MT1IgPSAoMCwgMCwgMCwgMTEwKQpEQVJLX09WRVJMQVlfQUxQSEEgPSA5MCAgICAgICAgICAgICAgIyBleHRyYSBkYXJrZW5pbmcgb3ZlciB0aGUgd2hvbGUgdGh1bWJuYWlsCgoKZGVmIF9sb2FkX2ZvbnQocGF0aHMsIHNpemUpOgogICAgZm9yIHAgaW4gcGF0aHM6CiAgICAgICAgdHJ5OgogICAgICAgICAgICByZXR1cm4gSW1hZ2VGb250LnRydWV0eXBlKHAsIHNpemUpCiAgICAgICAgZXhjZXB0IE9TRXJyb3I6CiAgICAgICAgICAgIGNvbnRpbnVlCiAgICByZXR1cm4gSW1hZ2VGb250LmxvYWRfZGVmYXVsdCgpCgoKY2xhc3MgVGh1bWJuYWlsOgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIHNlbGYuYnJhbmRfZm9udCA9IF9sb2FkX2ZvbnQoCiAgICAgICAgICAgIFsKICAgICAgICAgICAgICAgICJBcnRpc3RNdXNpYy9oZWxwZXJzL0RlamFWdVNhbnMtQm9sZC50dGYiLAogICAgICAgICAgICAgICAgIkFydGlzdE11c2ljL2hlbHBlcnMvUmFsZXdheS1Cb2xkLnR0ZiIsCiAgICAgICAgICAgIF0sCiAgICAgICAgICAgIDMwCiAgICAgICAgKQoKICAgIGFzeW5jIGRlZiBzYXZlX3RodW1iKHNlbGYsIG91dHB1dF9wYXRoOiBzdHIsIHVybDogc3RyKToKICAgICAgICBhc3luYyB3aXRoIGFpb2h0dHAuQ2xpZW50U2Vzc2lvbigpIGFzIHNlc3Npb246CiAgICAgICAgICAgIGFzeW5jIHdpdGggc2Vzc2lvbi5nZXQodXJsKSBhcyByZXNwOgogICAgICAgICAgICAgICAgd2l0aCBvcGVuKG91dHB1dF9wYXRoLCAid2IiKSBhcyBmOgogICAgICAgICAgICAgICAgICAgIGYud3JpdGUoYXdhaXQgcmVzcC5yZWFkKCkpCiAgICAgICAgcmV0dXJuIG91dHB1dF9wYXRoCgogICAgYXN5bmMgZGVmIGdlbmVyYXRlKHNlbGYsIHNvbmc6IFRyYWNrLCBzaXplPVNJWkUpIC0+IHN0cjoKICAgICAgICB0cnk6CiAgICAgICAgICAgIHRlbXAgPSBmImNhY2hlL3RlbXBfe3NvbmcuaWR9LmpwZyIKICAgICAgICAgICAgb3V0cHV0ID0gZiJjYWNoZS97c29uZy5pZH1fdWx0cmEucG5nIgogICAgICAgICAgICBpZiBvcy5wYXRoLmV4aXN0cyhvdXRwdXQpOgogICAgICAgICAgICAgICAgcmV0dXJuIG91dHB1dAogICAgICAgICAgICBhd2FpdCBzZWxmLnNhdmVfdGh1bWIodGVtcCwgc29uZy50aHVtYm5haWwpCiAgICAgICAgICAgIHJldHVybiBhd2FpdCBhc3luY2lvLmdldF9ldmVudF9sb29wKCkucnVuX2luX2V4ZWN1dG9yKAogICAgICAgICAgICAgICAgTm9uZSwKICAgICAgICAgICAgICAgIHNlbGYuX2dlbmVyYXRlX3N5bmMsCiAgICAgICAgICAgICAgICB0ZW1wLAogICAgICAgICAgICAgICAgb3V0cHV0LAogICAgICAgICAgICAgICAgc29uZywKICAgICAgICAgICAgICAgIHNpemUKICAgICAgICAgICAgKQogICAgICAgIGV4Y2VwdCBFeGNlcHRpb246CiAgICAgICAgICAgIHJldHVybiBjb25maWcuREVGQVVMVF9USFVNQgoKICAgIGRlZiBfZHJhd19icmFuZChzZWxmLCBiZzogSW1hZ2UuSW1hZ2UpOgogICAgICAgICIiIkRyYXdzIGFuIGF0dHJhY3RpdmUgZ2xvd2luZyBiYWRnZS1zdHlsZSB3YXRlcm1hcmsgb24gYmcgKFJHQkEpLiIiIgogICAgICAgIGRyYXcgPSBJbWFnZURyYXcuRHJhdyhiZykKCiAgICAgICAgc2VnbWVudHMgPSBbCiAgICAgICAgICAgICgi4pymICIsICgyNTUsIDI1NSwgMjU1LCAyNTUpKSwKICAgICAgICAgICAgKCLwnZeUIiwgUkVEX0NPTE9SKSwKICAgICAgICAgICAgKCLwnZe/8J2YgfCdl7bwnZiA8J2YgSIsICgyNTUsIDI1NSwgMjU1LCAyNTUpKSwKICAgICAgICAgICAgKCLwnZeVIiwgQUNDRU5UX0NPTE9SKSwKICAgICAgICAgICAgKCLwnZe88J2YgfCdmIAg4pymIiwgKDI1NSwgMjU1LCAyNTUsIDI1NSkpLAogICAgICAgIF0KICAgICAgICAjIEVkaXRlZCBUZXh0IEhlcmU6CiAgICAgICAgc2VnbWVudHMgPSBbCiAgICAgICAgICAgICgi4pymIENPUFl4TVVTSUMg4pymIiwgKDI1NSwgMjU1LCAyNTUsIDI1NSkpCiAgICAgICAgXQogICAgICAgIGZ1bGxfdGV4dCA9ICIiLmpvaW4oc2VnIGZvciBzZWcsIF8gaW4gc2VnbWVudHMpCiAgICAgICAgYmJveCA9IGRyYXcudGV4dGJib3goKDAsIDApLCBmdWxsX3RleHQsIGZvbnQ9c2VsZi5icmFuZF9mb250KQogICAgICAgIHRleHRfdyA9IGJib3hbMl0gLSBiYm94WzBdCiAgICAgICAgdGV4dF9oID0gYmJveFszXSAtIGJib3hbMV0KCiAgICAgICAgcGFkX3gsIHBhZF95ID0gMjIsIDE0CiAgICAgICAgcGlsbF9ib3ggPSAoCiAgICAgICAgICAgIEJSQU5EX1ggLSBwYWRfeCwKICAgICAgICAgICAgQlJBTkRfWSAtIHBhZF95LAogICAgICAgICAgICBCUkFORF9YICsgdGV4dF93ICsgcGFkX3gsCiAgICAgICAgICAgIEJSQU5EX1kgKyB0ZXh0X2ggKyBwYWRfeSwKICAgICAgICApCgogICAgICAgIHBpbGxfbGF5ZXIgPSBJbWFnZS5uZXcoIlJHQkEiLCBiZy5zaXplLCAoMCwgMCwgMCwgMCkpCiAgICAgICAgcGlsbF9kcmF3ID0gSW1hZ2VEcmF3LkRyYXcocGlsbF9sYXllcikKICAgICAgICBwaWxsX2RyYXcucm91bmRlZF9yZWN0YW5nbGUocGlsbF9ib3gsIHJhZGl1cz0odGV4dF9oICsgcGFkX3kgKiAyKSAvLyAyLCBmaWxsPVBJTExfQ09MT1IpCiAgICAgICAgYmcuYWxwaGFfY29tcG9zaXRlKHBpbGxfbGF5ZXIpCgogICAgICAgIGdsb3dfbGF5ZXIgPSBJbWFnZS5uZXcoIlJHQkEiLCBiZy5zaXplLCAoMCwgMCwgMCwgMCkpCiAgICAgICAgZ2xvd19kcmF3ID0gSW1hZ2VEcmF3LkRyYXcoZ2xvd19sYXllcikKICAgICAgICBnbG93X2RyYXcudGV4dCgoQlJBTkRfWCwgQlJBTkRfWSksIGZ1bGxfdGV4dCwgZm9udD1zZWxmLmJyYW5kX2ZvbnQsIGZpbGw9KDI1NSwgMTk2LCA2MSwgMjAwKSkKICAgICAgICBnbG93X2xheWVyID0gZ2xvd19sYXllci5maWx0ZXIoSW1hZ2VGaWx0ZXIuR2F1c3NpYW5CbHVyKDYpKQogICAgICAgIGJnLmFscGhhX2NvbXBvc2l0ZShnbG93X2xheWVyKQoKICAgICAgICBzaGFkb3dfbGF5ZXIgPSBJbWFnZS5uZXcoIlJHQkEiLCBiZy5zaXplLCAoMCwgMCwgMCwgMCkpCiAgICAgICAgc2hhZG93X2RyYXcgPSBJbWFnZURyYXcuRHJhdyhzaGFkb3dfbGF5ZXIpCiAgICAgICAgc2hhZG93X2RyYXcudGV4dCgoQlJBTkRfWCArIDIsIEJSQU5EX1kgKyAyKSwgZnVsbF90ZXh0LCBmb250PXNlbGYuYnJhbmRfZm9udCwgZmlsbD0oMCwgMCwgMCwgMTkwKSkKICAgICAgICBiZy5hbHBoYV9jb21wb3NpdGUoc2hhZG93X2xheWVyKQoKICAgICAgICBkcmF3ID0gSW1hZ2VEcmF3LkRyYXcoYmcpCiAgICAgICAgY3ggPSBCUkFORF9YCiAgICAgICAgZm9yIHNlZ190ZXh0LCBzZWdfY29sb3IgaW4gc2VnbWVudHM6CiAgICAgICAgICAgIGRyYXcudGV4dCgoY3gsIEJSQU5EX1kpLCBzZWdfdGV4dCwgZm9udD1zZWxmLmJyYW5kX2ZvbnQsIGZpbGw9c2VnX2NvbG9yKQogICAgICAgICAgICBjeCArPSBkcmF3LnRleHRsZW5ndGgoc2VnX3RleHQsIGZvbnQ9c2VsZi5icmFuZF9mb250KQoKICAgICAgICByZXR1cm4gYmcKCgogICAgZGVmIF9nZW5lcmF0ZV9zeW5jKAogICAgICAgIHNlbGYsCiAgICAgICAgdGVtcDogc3RyLAogICAgICAgIG91dHB1dDogc3RyLAogICAgICAgIHNvbmc6IFRyYWNrLAogICAgICAgIHNpemU9U0laRQogICAgKSAtPiBzdHI6CiAgICAgICAgdHJ5OgogICAgICAgICAgICB3aXRoIEltYWdlLm9wZW4odGVtcCkgYXMgdGVtcF9pbWc6CiAgICAgICAgICAgICAgICBzcmMgPSB0ZW1wX2ltZy5jb252ZXJ0KCJSR0JBIikKICAgICAgICAgICAgICAgIHNyY19yYXRpbyA9IHNyYy53aWR0aCAvIHNyYy5oZWlnaHQKICAgICAgICAgICAgICAgIGRzdF9yYXRpbyA9IHNpemVbMF0gLyBzaXplWzFdCiAgICAgICAgICAgICAgICBpZiBzcmNfcmF0aW8gPiBkc3RfcmF0aW86CiAgICAgICAgICAgICAgICAgICAgbmV3X2ggPSBzaXplWzFdCiAgICAgICAgICAgICAgICAgICAgbmV3X3cgPSBpbnQobmV3X2ggKiBzcmNfcmF0aW8pCiAgICAgICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgICAgIG5ld193ID0gc2l6ZVswXQogICAgICAgICAgICAgICAgICAgIG5ld19oID0gaW50KG5ld193IC8gc3JjX3JhdGlvKQogICAgICAgICAgICAgICAgcmVzaXplZCA9IHNyYy5yZXNpemUoKG5ld193LCBuZXdfaCkpCiAgICAgICAgICAgICAgICBsZWZ0ID0gKG5ld193IC0gc2l6ZVswXSkgLy8gMgogICAgICAgICAgICAgICAgdG9wID0gKG5ld19oIC0gc2l6ZVsxXSkgLy8gMgogICAgICAgICAgICAgICAgYmcgPSByZXNpemVkLmNyb3AoCiAgICAgICAgICAgICAgICAgICAgKGxlZnQsIHRvcCwgbGVmdCArIHNpemVbMF0sIHRvcCArIHNpemVbMV0pCiAgICAgICAgICAgICAgICApLmNvbnZlcnQoIlJHQkEiKQoKICAgICAgICAgICAgb3ZlcmxheSA9IEltYWdlLm5ldygiUkdCQSIsIGJnLnNpemUsICgwLCAwLCAwLCBEQVJLX09WRVJMQVlfQUxQSEEpKQogICAgICAgICAgICBiZy5hbHBoYV9jb21wb3NpdGUob3ZlcmxheSkKCiAgICAgICAgICAgIGJnID0gc2VsZi5fZHJhd19icmFuZChiZykKCiAgICAgICAgICAgIGJnLmNvbnZlcnQoIlJHQiIpLnNhdmUob3V0cHV0KQogICAgICAgICAgICB0cnk6CiAgICAgICAgICAgICAgICBvcy5yZW1vdmUodGVtcSkKICAgICAgICAgICAgZXhjZXB0IE9TRXJyb3I6CiAgICAgICAgICAgICAgICBwYXNzCiAgICAgICAgICAgIHJldHVybiBvdXRwdXQKICAgICAgICBleGNlcHQgRXhjZXB0aW9uOgogICAgICAgICAgICByZXR1cm4gY29uZmlnLkRFRkFVTFRfVEhVTUI="""
-exec(compile(base64.b64decode(_CODE), "thumbnail.py", "exec"))
+
+import os
+import asyncio
+import aiohttp
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from ArtistMusic import config
+from ArtistMusic.helpers import Track
+
+SIZE = (1280, 720)
+BRAND_X = 40
+BRAND_Y = 30
+PILL_COLOR = (0, 0, 0, 110)
+DARK_OVERLAY_ALPHA = 90
+
+def _load_font(paths, size):
+    for p in paths:
+        try:
+            return ImageFont.truetype(p, size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+class Thumbnail:
+    def __init__(self):
+        self.brand_font = _load_font(
+            [
+                "ArtistMusic/helpers/DejaVuSans-Bold.ttf",
+                "ArtistMusic/helpers/Raleway-Bold.ttf",
+            ],
+            30
+        )
+
+    async def save_thumb(self, output_path: str, url: str):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                with open(output_path, "wb") as f:
+                    f.write(await resp.read())
+        return output_path
+
+    async def generate(self, song: Track, size=SIZE) -> str:
+        try:
+            temp = f"cache/temp_{song.id}.jpg"
+            output = f"cache/{song.id}_ultra.png"
+            if os.path.exists(output):
+                return output
+            await self.save_thumb(temp, song.thumbnail)
+            return await asyncio.get_event_loop().run_in_executor(
+                None,
+                self._generate_sync,
+                temp,
+                output,
+                song,
+                size
+            )
+        except Exception as e:
+            print(f"Error: {e}")
+            return config.DEFAULT_THUMB
+
+    def _draw_brand(self, bg: Image.Image):
+        draw = ImageDraw.Draw(bg)
+        
+        # Yahan aapka naam set hai
+        full_text = "✦ COPYxMUSIC ✦"
+        
+        try:
+            bbox = draw.textbbox((0, 0), full_text, font=self.brand_font)
+            text_w = bbox[2] - bbox[0]
+            text_h = bbox[3] - bbox[1]
+        except AttributeError:
+            text_w, text_h = draw.textsize(full_text, font=self.brand_font)
+
+        pad_x, pad_y = 22, 14
+        pill_box = (
+            BRAND_X - pad_x,
+            BRAND_Y - pad_y,
+            BRAND_X + text_w + pad_x,
+            BRAND_Y + text_h + pad_y,
+        )
+
+        pill_layer = Image.new("RGBA", bg.size, (0, 0, 0, 0))
+        pill_draw = ImageDraw.Draw(pill_layer)
+        
+        try:
+            pill_draw.rounded_rectangle(pill_box, radius=(text_h + pad_y * 2) // 2, fill=PILL_COLOR)
+        except AttributeError:
+            pill_draw.rectangle(pill_box, fill=PILL_COLOR)
+            
+        bg.alpha_composite(pill_layer)
+
+        glow_layer = Image.new("RGBA", bg.size, (0, 0, 0, 0))
+        glow_draw = ImageDraw.Draw(glow_layer)
+        glow_draw.text((BRAND_X, BRAND_Y), full_text, font=self.brand_font, fill=(255, 196, 61, 200))
+        glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(6))
+        bg.alpha_composite(glow_layer)
+
+        shadow_layer = Image.new("RGBA", bg.size, (0, 0, 0, 0))
+        shadow_draw = ImageDraw.Draw(shadow_layer)
+        shadow_draw.text((BRAND_X + 2, BRAND_Y + 2), full_text, font=self.brand_font, fill=(0, 0, 0, 190))
+        bg.alpha_composite(shadow_layer)
+
+        draw = ImageDraw.Draw(bg)
+        draw.text((BRAND_X, BRAND_Y), full_text, font=self.brand_font, fill=(255, 255, 255, 255))
+
+        return bg
+
+    def _generate_sync(self, temp: str, output: str, song: Track, size=SIZE) -> str:
+        try:
+            with Image.open(temp) as temp_img:
+                src = temp_img.convert("RGBA")
+                src_ratio = src.width / src.height
+                dst_ratio = size[0] / size[1]
+                if src_ratio > dst_ratio:
+                    new_h = size[1]
+                    new_w = int(new_h * src_ratio)
+                else:
+                    new_w = size[0]
+                    new_h = int(new_w / src_ratio)
+                resized = src.resize((new_w, new_h))
+                left = (new_w - size[0]) // 2
+                top = (new_h - size[1]) // 2
+                bg = resized.crop((left, top, left + size[0], top + size[1])).convert("RGBA")
+
+            overlay = Image.new("RGBA", bg.size, (0, 0, 0, DARK_OVERLAY_ALPHA))
+            bg.alpha_composite(overlay)
+
+            bg = self._draw_brand(bg)
+
+            bg.convert("RGB").save(output)
+            try:
+                os.remove(temp)
+            except OSError:
+                pass
+            return output
+        except Exception as e:
+            print(f"Error sync: {e}")
+            return config.DEFAULT_THUMB
+
