@@ -56,7 +56,7 @@ class Config:
         self.VIDEO_PLAY: bool = self._str_to_bool(getenv("VIDEO_PLAY", "True"))
         self.VIDEO_MAX_HEIGHT: int = self._parse_video_height()
 
-        # ArtistBots API @ArtistApibot
+        # ArtistBots API @COPYxMUSIC_BOT
         self.ARTISTBOTS_API_URL: str = getenv("ARTISTBOTS_API_URL", "")
         self.ARTISTBOTS_KEY: str = getenv("ARTISTBOTS_KEY", "")
         self.ENABLE_API: bool = self._str_to_bool(getenv("ENABLE_API", "True"))
