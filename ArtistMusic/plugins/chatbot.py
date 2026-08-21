@@ -58,8 +58,8 @@ async def ai_chatbot(client, message):
     if len(user_history[user_id]) > MAX_HISTORY * 2:
         user_history[user_id] = user_history[user_id][-(MAX_HISTORY * 2):]
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
-    payload = {
+    url = f"[https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=){GEMINI_API_KEY}"
+    
         "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
         "contents": user_history[user_id]
     }
