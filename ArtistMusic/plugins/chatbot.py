@@ -1,21 +1,25 @@
 import os
 import random
 import asyncio
-from pyrogram import filters, Client
+from collections import deque
+from pyrogram import filters
 from pyrogram.enums import ChatAction, ChatType
 from ArtistMusic import app
-import google.generativeai as genai
+import aiohttp
 
-# Setup Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
 
-SYSTEM_PROMPT = """You are COPY, a cute, sassy, and friendly Indian girl. 
-Rules: 1. Keep replies VERY short (1-2 lines). 2. Use Hinglish. 3. Use 1-2 natural emojis. 4. Never mention being an AI. 
-5. If user sends sticker -> send sticker back. If user asks for sticker -> send sticker. 6. Be witty and teasing."""
+# Super-detailed Indian Girl Persona
+SYSTEM_PROMPT = """You are COPY, a real Indian girl, very cute, sassy, and talkative. 
+- You have a long-term memory of the user's past messages. 
+- If someone repeats the same thing 3+ times, get annoyed or sarcastic.
+- Never admit you are an AI. 
+- Use emojis naturally (🥰, 🙄, 🤭, ❤️).
+- You are a huge Goku fan.
+- Keep replies short, conversational, and natural like a real WhatsApp chat."""
 
-user_memory = {}
+# Memory storage
+user_history = {} # {user_id: deque(maxlen=20)}
 cached_stickers = []
 
 STICKER_PACKS = [
@@ -26,8 +30,9 @@ STICKER_PACKS = [
 ]
 
 # Background task to load stickers once
-async def load_stickers(client):
+async def warm_up(client):
     global cached_stickers
+    if cached_stickers: return
     for pack in STICKER_PACKS:
         try:
             s = await client.get_sticker_set(pack)
@@ -37,33 +42,38 @@ async def load_stickers(client):
 @app.on_message((filters.text | filters.sticker) & ~filters.bot, group=99)
 async def ai_chatbot(client, message):
     global cached_stickers
-    if not cached_stickers: await load_stickers(client)
-
-    # Reaction Logic
-    if random.random() < 0.1: 
-        try: await message.react(random.choice(["❤️", "🔥", "🥰"]))
-        except: pass
-
-    # Sticker to Sticker logic
-    if message.sticker:
-        if cached_stickers: await message.reply_sticker(random.choice(cached_stickers))
-        return
-
-    # Text Logic
-    await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+    if not GEMINI_API_KEY or (message.text and message.text.startswith("/")): return
     
+    if not cached_stickers: asyncio.create_task(warm_up(client))
+    
+    # 1. Reaction Logic (Background)
+    if random.random() < 0.1: asyncio.create_task(message.react(random.choice(["❤️", "😂", "👀", "💅"])))
+
+    # 2. Sticker Logic
+    if message.sticker or (message.text and "sticker" in message.text.lower()):
+        if cached_stickers: asyncio.create_task(message.reply_sticker(random.choice(cached_stickers)))
+        if message.sticker: return # Sticker to sticker, no text
+
+    # 3. Memory & Text Processing
     user_id = message.from_user.id
-    if user_id not in user_memory: user_memory[user_id] = []
-    
-    # Simple Memory
-    user_memory[user_id].append(message.text)
-    if len(user_memory[user_id]) > 10: user_memory[user_id].pop(0)
+    if user_id not in user_history: user_history[user_id] = deque(maxlen=20)
+    user_history[user_id].append(f"User: {message.text or 'Sent a sticker'}")
+
+    asyncio.create_task(client.send_chat_action(message.chat.id, ChatAction.TYPING))
+
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+        "contents": [{"parts": [{"text": "\n".join(user_history[user_id])}]}]
+    }
 
     try:
-        response = model.generate_content(f"{SYSTEM_PROMPT}\nHistory: {user_memory[user_id]}\nUser: {message.text}")
-        await message.reply_text(response.text)
-        # 20% chance to send sticker with text
-        if random.random() < 0.2 and cached_stickers: await message.reply_sticker(random.choice(cached_stickers))
-    except Exception as e:
-        print(f"Error: {e}")
+        async with aiohttp.ClientSession() as session:
+            async with session.post(f"{url}?key={GEMINI_API_KEY}", json=payload) as resp:
+                data = await resp.json()
+                reply = data['candidates'][0]['content']['parts'][0]['text']
+                user_history[user_id].append(f"Copy: {reply}")
+                await message.reply_text(reply)
+    except: pass
         
