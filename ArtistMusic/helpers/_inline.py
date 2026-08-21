@@ -6,9 +6,9 @@
 # Powered By   : Copy
 # Type         : API Based Telegram Music Bot
 #
-# Bot          : @COPYxMUSIC_BOT 
+# Bot          : @COPYxMUSIC_BOT
 # Channel      : https://t.me/CopymusicOfficial
-# GitHub       : 
+# Developer    : tg://openmessage?user_id=6983361101
 #
 # Unauthorized copying, modification, or redistribution
 # of this source code without permission is prohibited.
@@ -156,7 +156,6 @@ class Inline:
         )])
         return self.ikm(rows)
 
-    # FIX #1: 'text' param ab actually use ho raha hai (status row me)
     def ping_markup(self, text: str) -> types.InlineKeyboardMarkup:
         return self.ikm([
             [
@@ -179,8 +178,6 @@ class Inline:
             ],
         ])
 
-    # FIX #2: 'item_id' ab callback_data me pass ho raha hai taaki
-    # multi-track queue me sahi item control ho (galat item na dabe)
     def play_queued(
         self, chat_id: int, item_id: str, _text: str
     ) -> types.InlineKeyboardMarkup:
@@ -206,7 +203,6 @@ class Inline:
             )]]
         )
 
-    # FIX #3: 'language' ab ek row me display ho raha hai
     def settings_markup(
         self, lang: dict, admin_only: bool, force_admin: bool, language: str, chat_id: int
     ) -> types.InlineKeyboardMarkup:
@@ -246,7 +242,7 @@ class Inline:
             ],
             [
                 self.ikb(text="ʟᴀɴɢᴜᴀɢᴇ",  callback_data="help_langs"),
-                self.ikb(text="ᴅᴇᴠᴇʟᴏᴘᴇʀ", url="https://github.com/elevenyts/ArtistMusic"),
+                self.ikb(text="ᴅᴇᴠᴇʟᴏᴘᴇʀ", url="tg://openmessage?user_id=6983361101"),
             ],
         ]
         return self.ikm(rows)
@@ -258,4 +254,4 @@ class Inline:
                 self.ikb(text="ᴏᴘᴇɴ ɪɴ ʏᴛ", url=link,       style=ButtonStyle.DANGER),
             ],
         ])
-
+        
