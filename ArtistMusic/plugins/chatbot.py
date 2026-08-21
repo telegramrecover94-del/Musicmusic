@@ -5,7 +5,7 @@ from pyrogram import filters
 from pyrogram.enums import ChatAction, ChatType
 from ArtistMusic import app
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 
 # 🎀 Bot Ki Advanced Personality
 SYSTEM_PROMPT = """You are COPY, a very cute, highly expressive, and talkative Indian girl. 
@@ -19,8 +19,13 @@ MAX_HISTORY = 15
 
 @app.on_message((filters.text | filters.sticker) & ~filters.bot, group=99)
 async def ai_chatbot(client, message):
+    # Sabse pehle commands ko ignore karein taaki bot /start, /play par disturb na kare
+    if message.text and message.text.startswith("/"):
+        return
+
+    # Ab check karein ki API key hai ya nahi
     if not GEMINI_API_KEY:
-        await message.reply_text("⚠️ API Key nahi mili Railway mein!")
+        await message.reply_text("⚠️ API Key nahi mili Railway mein! Variable ka naam exactly GEMINI_API_KEY check karein bina kisi space ke.")
         return
 
     is_group = message.chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]
@@ -35,9 +40,6 @@ async def ai_chatbot(client, message):
         should_reply = True 
 
     if not should_reply:
-        return
-
-    if message.text and message.text.startswith("/"):
         return
 
     await client.send_chat_action(message.chat.id, ChatAction.TYPING)
