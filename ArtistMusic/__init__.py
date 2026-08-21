@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 # Project      : COPYxMUSIC API Telegram Music Bot
-# Powered By   : Copu
+# Powered By   : Copy
 # Type         : API Based Telegram Music Bot
 # 
 # Bot          : @COPYxMUSIC_BOT
