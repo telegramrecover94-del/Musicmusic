@@ -74,6 +74,27 @@ class YouTube:
         logger.info(f"🍪 Cookies Fallback: {'ENABLED' if self.enable_cookies_fallback else 'DISABLED'}")
         logger.info("=" * 50)
 
+    async def search(self, query: str, max_results: int = 1):
+        """Search YouTube for videos."""
+        try:
+            results = VideosSearch(query, limit=max_results)
+            dict_result = await results.next()
+            result_list = dict_result.get("result", [])
+            
+            if not result_list:
+                return None, None
+            
+            item = result_list[0]
+            title = item.get("title")
+            duration_min = item.get("duration")
+            vidid = item.get("id")
+            url = item.get("link")
+            
+            return title, vidid
+        except Exception as e:
+            logger.error(f"YouTube search error: {e}")
+            return None, None
+
     def _locate_download_file(self, video_id: str, video: bool = False) -> Optional[str]:
         """Locate any completed download file for a video id."""
         pattern = f"downloads/{video_id}*"
@@ -468,26 +489,4 @@ class YouTube:
 
     def valid(self, url: str) -> bool:
         """Check if URL is a valid YouTube URL."""
-        return bool(re.match(self.regex, url))
-
-    def url(self, message_1: types.Message) -> Union[str, None]:
-        """Extract YouTube URL from message."""
-        messages = [message_1]
-        link = None
-        
-        if message_1.reply_to_message:
-            messages.append(message_1.reply_to_message)
-
-        for message in messages:
-            text = message.text or message.caption or ""
-
-            if message.entities:
-                for entity in message.entities:
-                    if entity.type == enums.MessageEntityType.URL:
-                        link = text[entity.offset: entity.offset + entity.length]
-                        break
-
-            if message.caption_entities:
-                for entity in message.caption_entities:
-                    if entity.type == enums.MessageEntityType.TEXT_LINK:
-                        link = entity.url
+        return bool(re.match(self.re
