@@ -1,29 +1,36 @@
 # Netscape HTTP Cookie File
-# https://curl.haxx.se/rfc/cookie_spec.html
-# This is a generated file! Do not edit.
-
-.youtube.com	TRUE	/	TRUE	1821806986	PREF	tz=Asia.Calcutta&f4=4000000
-.youtube.com	TRUE	/	TRUE	1787248695	GPS	1
-.youtube.com	TRUE	/	TRUE	1787247085	YTSESSION-rvkia	ANPz9KjCvaG5yjGQtrVLn4ptKOksanT7vPQiWhfI+i9h7fvLu8+dXqVpKW+MbWhpdgnVmMVq2cke2pcaDljmYeS+Sd7OZsIGnuLJbbJSuzQ0XfPkIVpeKpyiTP6UoQzIX/qDYtG2QBm2T8EFsLoExIypeGA09hepBRoVioI1TMQ0vG7X4ixZBP2q0iETn6bzHOar9nfdom/XomqVSgu6OzTnbU/fCjjFB2mcv+7OcyCCETUZr2tMFHYlyGP5j9nRa6xIuLIQjm8i+fKSU5czhIfmbxTRVEO0uwF+/7HaO84UnE104bGylpYufA72ns0Gypk8dUUF77mq88AwjQ2XxTDOon6jRsnwiQ==
-.youtube.com	TRUE	/	FALSE	1821806978	HSID	AC15a9jBhmXYDC5-T
-.youtube.com	TRUE	/	TRUE	1821806978	SSID	ApJTj_Uf9-erPoQwT
-.youtube.com	TRUE	/	FALSE	1821806978	APISID	KFuKIwHK1Z1DO5_z/ACV5zyWvY3DUqTH6l
-.youtube.com	TRUE	/	TRUE	1821806978	SAPISID	DZIRKf3eVU9SqkES/Apvy_J24YeocSDs2n
-.youtube.com	TRUE	/	TRUE	1821806978	__Secure-1PAPISID	DZIRKf3eVU9SqkES/Apvy_J24YeocSDs2n
-.youtube.com	TRUE	/	TRUE	1821806978	__Secure-3PAPISID	DZIRKf3eVU9SqkES/Apvy_J24YeocSDs2n
-.youtube.com	TRUE	/	FALSE	1821806978	SID	g.a000BgnalLS9MFuNd_7NL5orzK5PnIBr-NvLM4FmVaABE_-igeJqClmGdl_6eb9Txll3ZFltuwACgYKAUQSARYSFQHGX2MiBdVKJiFOMWLZ2W6IoSnNcxoVAUF8yKoNUr_CQdUhWS-Htnp2iQMw0076
-.youtube.com	TRUE	/	TRUE	1821806978	__Secure-1PSID	g.a000BgnalLS9MFuNd_7NL5orzK5PnIBr-NvLM4FmVaABE_-igeJqMJoDfluJ-cQgmzsgo6p1NAACgYKAcwSARYSFQHGX2MiW4VqAwFqfVcS4w4WS40OtxoVAUF8yKoc8CIhSa3KyYcIHq_iEmWN0076
-.youtube.com	TRUE	/	TRUE	1821806978	__Secure-3PSID	g.a000BgnalLS9MFuNd_7NL5orzK5PnIBr-NvLM4FmVaABE_-igeJqUFaFZCZyatFveZ4wL99ZJQACgYKAbUSARYSFQHGX2MiepoHLhrCI3UvhZUNU4DnfxoVAUF8yKqRf5Iz0N8-ELwRmuHUrgQ-0076
-.youtube.com	TRUE	/	TRUE	1818782978	__Secure-1PSIDTS	sidts-CjUBXMw41bIJga8zCOFhBHeoSVlPDT_iuuDdCUFExele3VHwgFBr3LClNkOHMlshx7rUwIS3shAA
-.youtube.com	TRUE	/	TRUE	1818782978	__Secure-3PSIDTS	sidts-CjUBXMw41bIJga8zCOFhBHeoSVlPDT_iuuDdCUFExele3VHwgFBr3LClNkOHMlshx7rUwIS3shAA
-.youtube.com	TRUE	/	TRUE	1821806979	LOGIN_INFO	AFmmF2swRgIhAMffONpBfwaN9oRFfIWEP1nhH4kQdsDcyNfVFiBWVeFxAiEA-D1Hze5Rr8jcHCfNptZ5xvfXv0cu7_MusKcECVqKxrE:QUQ3MjNmeF9oNGRIVVNzRTE5bHI3QXFJTnY0U3dxSkhDZERQMjhZalJPYWxqcFpISUJQNEZ0Z1g3R0VFcUJPRk1GS1IwOWlQeXNrS2JXc0tuOExXbDJzdHNCQ3d2NS11b3p4eFJPMzl0b013VTJjNHd5NDRYaU05Wkt5SDA5c3VFRExjUWJzZFFHb1lldXUzWWZFUlNDcDA5aUt4UURJUHlB
-.youtube.com	TRUE	/	FALSE	1818783010	SIDCC	AKEyXzViaFjAccQg6Bw0JUYHoYa4mIFiMClZHaEvodqe3o8c0XiYjlYd4MudGe3cSUV-gCGGTQ
-.youtube.com	TRUE	/	TRUE	1818783010	__Secure-1PSIDCC	AKEyXzXGi52rX9Gx1fgTC6lN8KRTqgY8I0zccaBCyqUoXcb0hKofs3HcuLuSohdN7fRLEgR1vw
-.youtube.com	TRUE	/	TRUE	1818783010	__Secure-3PSIDCC	AKEyXzXS1Qg4xJQtP_HjWWFmV4d2ry8cldMC6gKK1puGhNnvqNW3brioZgQ-JTrhFOE-hqScHw
-.youtube.com	TRUE	/	TRUE	1787247610	CONSISTENCY	AHDYFaExeCBZOxaAKQgs8vYxZecoueKCJNlVySVG_bsLGVfZyjGd0OvA4mPDQuTnyOyhieDtSA-U-9oVlpoA8Jt7NcEqsW1rjsn30-pv7P6cqUUV98PFpgE_4XOfXjht2FDUtRIFCF_1jkZKwpxooWrW
-.youtube.com	TRUE	/	TRUE	1802788130	__Secure-YNID	21.YT=BCJenLRcNSp6eZqfNA6bBEjrelP5DFDB_jkGp5tG7bWPyU12sla4xex0NZfNsQ2G5ZgtYVzEks4vunMqtXgCNfcyTkhh5OJGd7aeJgA9aGmJrWJKEdnEiH7hjVPbZky2IqAMtLxquvqT7VVqI1DaDIamJPHmFqnE6lecZA3rGZUxBO5wFaRUz9xE-ksvrfy2nDuDDmniGdH9OliiOBH-Vww6YrfYKNWfKXjCMPaDRLjmkDOZZE1fAoYSQUy6KOzzRcToUKgtdGnqZmpBA5HjQsTBY5ZnNAIVohX5THRj5zxudrMncHss4N6DCJE39EFHU5MkKqFSHZlrUmvTswzDQw
-.youtube.com	TRUE	/	TRUE	1802798989	VISITOR_INFO1_LIVE	8sHI_koPIcE
-.youtube.com	TRUE	/	TRUE	1802798989	VISITOR_PRIVACY_METADATA	CgJJThIEGgAgVw%3D%3D
-.youtube.com	TRUE	/	TRUE	1802788209	__Secure-ROLLOUT_TOKEN	CJ23h4jExsmD6wEQnfqVtbWvlgMYh_Cm27WvlgM%3D
-.youtube.com	TRUE	/	TRUE	0	YSC	pa7r0V6_lQ4
-
+# ═══════════════════════════════════════════════════════════
+#  KUST MUSIC — YouTube Cookies File
+# ═══════════════════════════════════════════════════════════
+#
+# This file lets yt-dlp authenticate with YouTube using your
+# account cookies. This helps avoid rate limits and allows
+# playback of age-restricted or region-locked content.
+#
+# ── HOW TO EXPORT YOUR COOKIES ──────────────────────────────
+#
+#  Option 1 — Browser Extension (Recommended):
+#    1. Install "Get cookies.txt LOCALLY" extension
+#       Chrome: https://chrome.google.com/webstore/search/get%20cookies.txt
+#       Firefox: https://addons.mozilla.org/en-US/firefox/search/?q=cookies.txt
+#    2. Open https://www.youtube.com and log into your account
+#    3. Click the extension icon → Export cookies for youtube.com
+#    4. Replace everything in this file with the exported content
+#
+#  Option 2 — yt-dlp CLI:
+#    yt-dlp --cookies-from-browser chrome --cookies cookies.txt https://youtube.com
+#
+# ── NOTES ───────────────────────────────────────────────────
+#  • If this file is empty or missing, yt-dlp still works but
+#    may hit rate limits faster.
+#  • Never share your cookies.txt publicly — it gives access
+#    to your YouTube account.
+#  • Cookies expire. Re-export if downloads start failing.
+#
+# ── FORMAT ──────────────────────────────────────────────────
+#  domain  flag  path  secure  expiry  name  value
+#
+# Example (replace with your real cookies):
+# .youtube.com	TRUE	/	TRUE	1999999999	VISITOR_INFO1_LIVE	your_value_here
+# .youtube.com	TRUE	/	TRUE	1999999999	YSC	your_value_here
+# ════════════════════════════════════════════════════════════
