@@ -1,14 +1,14 @@
 # ==========================================================
-# Copyright (c) 2026 COPYxMUSIC 
+# Copyright (c) 2026 ArtistBots
 # All Rights Reserved.
 #
-# Project      : COPYxMUSIC API Telegram Music Bot
-# Powered By   : Copy
+# Project      : ArtistBots API Telegram Music Bot
+# Powered By   : Artist
 # Type         : API Based Telegram Music Bot
 #
-# Bot          : @COPYxMUSIC_BOT
-# Channel      : https://t.me/CopymusicOfficial 
-# GitHub       : 
+# Bot          : @ArtistApibot
+# Channel      : https://t.me/artistbots
+# GitHub       : https://github.com/elevenyts/ArtistMusic
 #
 # Unauthorized copying, modification, or redistribution
 # of this source code without permission is prohibited.
@@ -74,39 +74,6 @@ class YouTube:
         logger.info(f"🍪 Cookies Fallback: {'ENABLED' if self.enable_cookies_fallback else 'DISABLED'}")
         logger.info("=" * 50)
 
-    async def search(self, query: str, max_results: int = 1):
-        """Search YouTube for videos."""
-        if query in self.search_cache:
-            cached_result = self.search_cache[query]
-            if time.time() - cached_result["time"] < 600:
-                return cached_result["data"]
-
-        try:
-            results = VideosSearch(query, limit=max_results)
-            dict_result = await results.next()
-            result_list = dict_result.get("result", [])
-            
-            if not result_list:
-                return None
-            
-            item = result_list[0]
-            
-            class MediaInfo:
-                def __init__(self, item):
-                    self.title = item.get("title")
-                    self.id = item.get("id")
-                    self.duration = item.get("duration")
-                    self.url = item.get("link")
-                    self.vidid = item.get("id")
-                    self.video = False
-
-            data = MediaInfo(item)
-            self.search_cache[query] = {"time": time.time(), "data": data}
-            return data
-        except Exception as e:
-            logger.error(f"YouTube search error: {e}")
-            return None
-
     def _locate_download_file(self, video_id: str, video: bool = False) -> Optional[str]:
         """Locate any completed download file for a video id."""
         pattern = f"downloads/{video_id}*"
@@ -162,13 +129,16 @@ class YouTube:
         logger.info("🍪 Saving cookies from urls...")
         saved_count = 0
         
+        # Create cookies directory if not exists
         cookies_dir = Path("ArtistMusic/cookies")
         cookies_dir.mkdir(parents=True, exist_ok=True)
         
         for url in urls:
             try:
+                # Generate unique filename
                 path = cookies_dir / f"cookie{random.randint(10000, 99999)}.txt"
                 
+                # Convert to raw URL if needed
                 if "pastebin.com" in url:
                     link = url.replace("pastebin.com", "pastebin.com/raw")
                 elif "batbin.me" in url:
@@ -179,27 +149,57 @@ class YouTube:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(link, timeout=aiohttp.ClientTimeout(total=30)) as resp:
                         if resp.status != 200:
+                            logger.error(f"❌ Cookie download failed: HTTP {resp.status} from {url}")
                             continue
+                        
                         content = await resp.read()
                         if not content or len(content) < 50:
+                            logger.error(f"❌ Cookie file empty or invalid from {url}")
                             continue
+                        
+                        # Save cookie file
                         with open(path, "wb") as fw:
                             fw.write(content)
+                        
                         if path.exists() and path.stat().st_size > 0:
                             saved_count += 1
                             cookie_filename = path.name
                             if cookie_filename not in self.cookies:
                                 self.cookies.append(cookie_filename)
-            except Exception:
-                pass
+                            logger.info(f"✅ Saved: {cookie_filename} ({len(content)} bytes)")
+                            
+            except asyncio.TimeoutError:
+                logger.error(f"❌ Cookie download timeout from {url}")
+            except Exception as e:
+                logger.error(f"❌ Cookie download error from {url}: {e}")
         
         self.checked = True
+        
+        if saved_count > 0:
+            logger.info(f"✅ Cookies saved successfully! ({saved_count} file(s))")
+        else:
+            logger.error("❌ No cookies saved! Check COOKIE_URL in .env.")
 
     async def download_via_api(self, link: str, video: bool = False) -> Optional[str]:
-        """Download audio/video using ArtistBots API (Primary Method)."""
-        if not self.enable_api or not self.api_url:
+        """
+        Download audio/video using ArtistBots API (Primary Method).
+        
+        Args:
+            link: YouTube URL or video ID
+            video: True for video download, False for audio download
+        
+        Returns:
+            Path to downloaded file or None if failed
+        """
+        if not self.enable_api:
+            logger.debug("API is disabled in config")
             return None
 
+        if not self.api_url:
+            logger.debug("ARTISTBOTS_API_URL not configured")
+            return None
+
+        # Extract video ID from URL
         if "v=" in link:
             video_id = link.split("v=")[-1].split("&")[0]
         elif "youtu.be" in link:
@@ -208,79 +208,168 @@ class YouTube:
             video_id = link
 
         if not video_id or len(video_id) < 3:
+            logger.debug(f"Invalid video ID: {video_id}")
             return None
 
         DOWNLOAD_DIR = "downloads"
         os.makedirs(DOWNLOAD_DIR, exist_ok=True)
         
+        # Set file extension based on type
         file_ext = ".mp4" if video else ".mp3"
         file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}{file_ext}")
 
+        # Check if already downloaded
         if os.path.exists(file_path):
+            logger.debug(f"File already exists: {file_path}")
             return file_path
 
         try:
             download_type = "video" if video else "audio"
-            params = {"url": video_id, "type": download_type}
+            logger.info(f"🚀 [API PRIMARY] Trying ArtistBots API for {video_id} (type: {download_type})")
+            
+            # Prepare API parameters
+            params = {
+                "url": video_id,
+                "type": download_type,
+            }
+            
+            # Add API key if available
             if self.artistbots_key:
                 params["api_key"] = self.artistbots_key
+                logger.debug(f"Using API key: {self.artistbots_key[:8]}...")
+            else:
+                logger.warning("No ArtistBots API key configured!")
+                return None
             
             async with aiohttp.ClientSession() as session:
                 api_endpoint = f"{self.api_url.rstrip('/')}/download"
+                logger.debug(f"Calling API: {api_endpoint}")
+                
                 async with session.get(
                     api_endpoint,
                     params=params,
                     timeout=aiohttp.ClientTimeout(total=self.api_stream_timeout),
                 ) as response:
+                    logger.debug(f"API response status: {response.status}")
+                    
                     if response.status != 200:
+                        try:
+                            error_text = await response.text()
+                            logger.error(f"API returned status {response.status}: {error_text[:200]}")
+                        except:
+                            logger.error(f"API returned status {response.status}")
                         return None
                     
-                    with open(file_path, "wb") as f:
-                        async for chunk in response.content.iter_chunked(65536):
-                            f.write(chunk)
+                    # Handle direct binary download
+                    logger.info(f"📥 Downloading {download_type} via API for {video_id}...")
                     
+                    # Get total file size if available
+                    content_length = response.headers.get('content-length')
+                    if content_length:
+                        file_size_mb = int(content_length) / (1024 * 1024)
+                        logger.info(f"📦 File size: {file_size_mb:.2f} MB")
+                    
+                    # Download file with progress
+                    downloaded = 0
+                    last_log = 0
+                    with open(file_path, "wb") as f:
+                        async for chunk in response.content.iter_chunked(65536):  # 64KB chunks
+                            f.write(chunk)
+                            downloaded += len(chunk)
+                            
+                            # Log progress every 5MB
+                            if downloaded - last_log >= 5 * 1024 * 1024:
+                                progress_mb = downloaded / (1024 * 1024)
+                                if content_length:
+                                    total_mb = int(content_length) / (1024 * 1024)
+                                    percent = (downloaded / int(content_length)) * 100
+                                    logger.info(f"📊 Progress: {progress_mb:.1f}/{total_mb:.1f} MB ({percent:.1f}%)")
+                                else:
+                                    logger.info(f"📊 Downloaded: {progress_mb:.1f} MB")
+                                last_log = downloaded
+                    
+                    # Verify file was created and has content
                     if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                        file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
+                        logger.info(f"✅ [API SUCCESS] Downloaded: {file_path} ({file_size_mb:.2f} MB)")
                         return file_path
                     else:
+                        logger.error(f"❌ API download failed: file is empty or not created")
                         if os.path.exists(file_path):
                             os.remove(file_path)
                         return None
-        except Exception:
+
+        except asyncio.TimeoutError:
+            logger.error(f"⏰ API timeout for {video_id} after {self.api_stream_timeout} seconds")
+            return None
+        except aiohttp.ClientError as e:
+            logger.error(f"🌐 API client error for {video_id}: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"❌ API download failed for {video_id}: {type(e).__name__}: {e}")
             return None
 
     async def download_via_cookies(self, video_id: str, video: bool = False) -> Optional[str]:
-        """Download audio/video using yt-dlp with cookies and proxy (Fallback Method)."""
+        """
+        Download audio/video using yt-dlp with cookies (Fallback Method).
+        
+        Args:
+            video_id: YouTube video ID
+            video: True for video download, False for audio download
+        
+        Returns:
+            Path to downloaded file or None if failed
+        """
         if not self.enable_cookies_fallback:
+            logger.debug("Cookies fallback is disabled in config")
             return None
 
         url = self.base + video_id
         filename_pattern = f"downloads/{video_id}"
         
+        # Check existing files
         existing_files = [
             f for f in glob.glob(f"{filename_pattern}.*")
             if not f.endswith('.part')
         ]
         
         if video:
-            video_candidates = [f for f in existing_files if Path(f).suffix.lower() in {".mp4", ".mkv", ".webm", ".mov"}]
+            video_candidates = [
+                f for f in existing_files
+                if Path(f).suffix.lower() in {".mp4", ".mkv", ".webm", ".mov"}
+            ]
             if video_candidates:
+                logger.debug(f"Found existing video file: {video_candidates[0]}")
                 return video_candidates[0]
         else:
-            audio_candidates = [f for f in existing_files if Path(f).suffix.lower() in {".m4a", ".webm", ".opus", ".mp3", ".ogg", ".wav", ".flac"}]
+            audio_candidates = [
+                f for f in existing_files
+                if Path(f).suffix.lower() in {".m4a", ".webm", ".opus", ".mp3", ".ogg", ".wav", ".flac"}
+            ]
             if audio_candidates:
+                logger.debug(f"Found existing audio file: {audio_candidates[0]}")
                 return audio_candidates[0]
 
+            container_fallbacks = [
+                f for f in existing_files
+                if Path(f).suffix.lower() in {".mp4", ".mkv", ".mov"}
+            ]
+            if container_fallbacks:
+                logger.debug(f"Found existing container file: {container_fallbacks[0]}")
+                return container_fallbacks[0]
+        
+        # Create downloads directory
         downloads_dir = Path("downloads")
         if not downloads_dir.exists():
             try:
                 downloads_dir.mkdir(parents=True, exist_ok=True)
-            except Exception:
+                logger.info("📁 Created downloads directory")
+            except Exception as e:
+                logger.error(f"❌ Cannot create downloads directory: {e}")
                 return None
 
         async with self._download_semaphore:
             cookie = self.get_cookies()
-            proxy_url = os.getenv("PROXY", "http://soucwyed:xa8j3kvuna24@31.59.20.176:6754")
-            
             base_opts = {
                 "outtmpl": "downloads/%(id)s.%(ext)s",
                 "quiet": True,
@@ -298,23 +387,40 @@ class YouTube:
                 "fragment_retries": 2,
                 "extractor_retries": 5,
                 "sleep_interval_requests": 1,
-                "proxy": proxy_url,  # <--- SIRF YE PROXY ADD KI HAI PURANE CODE MEIN
                 "extractor_args": {"youtube": {"player_client": ["android", "web"]}},
             }
 
             if video:
+                height_filter = ""
+                if self._max_video_height and self._max_video_height > 0:
+                    height_filter = f"[height<={self._max_video_height}]"
+                format_chain = (
+                    f"bestvideo[ext=mp4]{height_filter}+bestaudio[ext=m4a]/"
+                    f"bestvideo{height_filter}+bestaudio/"
+                    "bestvideo+bestaudio/best"
+                )
                 ydl_opts = {
                     **base_opts,
-                    "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best",
+                    "format": format_chain,
                     "merge_output_format": "mp4",
+                    "postprocessors": [
+                        {
+                            "key": "FFmpegVideoConvertor",
+                            "preferedformat": "mp4",
+                        }
+                    ],
                 }
             else:
                 ydl_opts = {
                     **base_opts,
-                    "format": "bestaudio[ext=m4a]/bestaudio/best",
+                    "format": "bestaudio[ext=m4a]/bestaudio[acodec=opus]/bestaudio/best",
+                    "postprocessors": [],
                 }
 
-            ydl_opts_cookie = {**ydl_opts, "cookiefile": cookie} if cookie else ydl_opts
+            ydl_opts_cookie = {
+                **ydl_opts,
+                "cookiefile": cookie,
+            }
 
             def _download(ydl_runtime_opts):
                 ydl_instance = None
@@ -322,11 +428,24 @@ class YouTube:
                     ydl_instance = yt_dlp.YoutubeDL(ydl_runtime_opts)
                     info = ydl_instance.extract_info(url, download=True)
                     if not info:
+                        logger.error(f"❌ Failed to extract info for {video_id}")
                         return None
+                    
                     time.sleep(0.5)
-                    return self._locate_download_file(video_id, video=video)
-                except Exception:
-                    return self._locate_download_file(video_id, video=video)
+                    located = self._locate_download_file(video_id, video=video)
+                    if located:
+                        logger.info(f"✅ Download completed: {located}")
+                        return located
+                    
+                    logger.error(f"❌ Download completed but file not found for: {video_id}")
+                    return None
+                except Exception as ex:
+                    logger.warning(f"⚠️ Download error for {video_id}: {ex}")
+                    recovered = self._locate_download_file(video_id, video=video)
+                    if recovered:
+                        logger.info(f"✅ Recovered existing file: {recovered}")
+                        return recovered
+                    return None
                 finally:
                     if ydl_instance:
                         try:
@@ -334,7 +453,15 @@ class YouTube:
                         except Exception:
                             pass
 
-            return await asyncio.to_thread(_download, ydl_opts_cookie)
+            logger.info(f"🍪 [COOKIES FALLBACK] Downloading {video_id} with cookies...")
+            result = await asyncio.to_thread(_download, ydl_opts_cookie)
+            
+            if result:
+                logger.info(f"✅ [COOKIES SUCCESS] Downloaded: {result}")
+            else:
+                logger.warning(f"⚠️ [COOKIES FAILED] Could not download {video_id}")
+            
+            return result
 
     def valid(self, url: str) -> bool:
         """Check if URL is a valid YouTube URL."""
@@ -361,6 +488,4 @@ class YouTube:
                 for entity in message.caption_entities:
                     if entity.type == enums.MessageEntityType.TEXT_LINK:
                         link = entity.url
-
-        return link
-        
+                  
