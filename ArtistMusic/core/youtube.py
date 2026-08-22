@@ -1,14 +1,14 @@
 # ==========================================================
-# Copyright (c) 2026 ArtistBots
+# Copyright (c) 2026 COPYxMUSIC 
 # All Rights Reserved.
 #
-# Project      : ArtistBots API Telegram Music Bot
-# Powered By   : Artist
+# Project      : COPYxMUSIC API Telegram Music Bot
+# Powered By   : Copy
 # Type         : API Based Telegram Music Bot
 #
-# Bot          : @ArtistApibot
-# Channel      : https://t.me/artistbots
-# GitHub       : https://github.com/elevenyts/ArtistMusic
+# Bot          : @COPYxMUSIC_BOT
+# Channel      : https://t.me/CopymusicOfficial 
+# GitHub       : 
 #
 # Unauthorized copying, modification, or redistribution
 # of this source code without permission is prohibited.
@@ -370,6 +370,8 @@ class YouTube:
 
         async with self._download_semaphore:
             cookie = self.get_cookies()
+            proxy_url = os.getenv("PROXY", "http://soucwyed:xa8j3kvuna24@31.59.20.176:6754")
+            
             base_opts = {
                 "outtmpl": "downloads/%(id)s.%(ext)s",
                 "quiet": True,
@@ -387,6 +389,7 @@ class YouTube:
                 "fragment_retries": 2,
                 "extractor_retries": 5,
                 "sleep_interval_requests": 1,
+                "proxy": proxy_url,  # Added proxy support here
                 "extractor_args": {"youtube": {"player_client": ["android", "web"]}},
             }
 
@@ -488,200 +491,3 @@ class YouTube:
                 for entity in message.caption_entities:
                     if entity.type == enums.MessageEntityType.TEXT_LINK:
                         link = entity.url
-                        break
-
-        if link:
-            # Remove tracking parameters
-            return link.split("&si")[0].split("?si")[0]
-        return None
-
-
-
-        return None
-
-    async def search(self, query: str, m_id: int) -> Track | None:
-        """Search for a song on YouTube."""
-        cache_key = query
-        current_time = asyncio.get_running_loop().time()
-
-        # Check cache
-        if cache_key in self.search_cache:
-            cached_result, cache_timestamp = self.search_cache[cache_key]
-            if current_time - cache_timestamp < 600:  # 10 minutes TTL
-                fresh = replace(cached_result)
-                fresh.message_id = m_id
-                fresh.file_path = None
-                fresh.user = None
-                fresh.time = 0
-                fresh.video = False
-                return fresh
-
-        try:
-            _search = VideosSearch(query, limit=1)
-            results = await _search.next()
-        except Exception as e:
-            logger.warning(f"⚠️ YouTube search failed for '{query}': {e}")
-            return None
-
-        if results and results["result"]:
-            data = results["result"][0]
-            duration = data.get("duration")
-            is_live = duration is None or duration == "LIVE"
-
-            track = Track(
-                id=data.get("id"),
-                channel_name=data.get("channel", {}).get("name"),
-                duration=duration if not is_live else "LIVE",
-                duration_sec=0 if is_live else utils.to_seconds(duration),
-                message_id=m_id,
-                title=data.get("title")[:25],
-                thumbnail=data.get("thumbnails", [{}])[-1].get("url").split("?")[0],
-                url=data.get("link"),
-                view_count=data.get("viewCount", {}).get("short"),
-                is_live=is_live,
-            )
-
-            # Cache result
-            self.search_cache[cache_key] = (track, current_time)
-            
-            # Clean old cache entries
-            if len(self.search_cache) > 100:
-                oldest_key = min(self.search_cache.keys(),
-                                 key=lambda k: self.search_cache[k][1])
-                del self.search_cache[oldest_key]
-
-            return replace(track)
-        return None
-
-    async def playlist(self, limit: int, user: str, url: str) -> list[Track]:
-        """Extract tracks from a YouTube playlist."""
-        try:
-            plist = await Playlist.get(url)
-            tracks = []
-
-            if not plist or "videos" not in plist or not plist["videos"]:
-                return []
-
-            for data in plist["videos"][:limit]:
-                try:
-                    thumbnails = data.get("thumbnails", [])
-                    thumbnail_url = ""
-                    if thumbnails and len(thumbnails) > 0:
-                        thumbnail_url = thumbnails[-1].get("url", "").split("?")[0]
-
-                    link = data.get("link", "")
-                    if "&list=" in link:
-                        link = link.split("&list=")[0]
-
-                    track = Track(
-                        id=data.get("id", ""),
-                        channel_name=data.get("channel", {}).get("name", ""),
-                        duration=data.get("duration", "0:00"),
-                        duration_sec=utils.to_seconds(data.get("duration", "0:00")),
-                        title=(data.get("title", "Unknown")[:25]),
-                        thumbnail=thumbnail_url,
-                        url=link,
-                        user=user,
-                        view_count="",
-                    )
-                    tracks.append(track)
-                except Exception as e:
-                    logger.warning(f"Failed to parse playlist item: {e}")
-                    continue
-
-            return tracks
-        except KeyError as e:
-            raise Exception(f"Failed to parse playlist. YouTube may have changed their structure.")
-        except Exception as e:
-            logger.error(f"Playlist extraction error: {e}")
-            raise
-
-    async def download(self, video_id: str, is_live: bool = False, video: bool = False) -> Optional[str]:
-        """
-        Download audio/video from YouTube.
-        
-        PRIORITY: API First → Cookies Fallback
-        
-        Args:
-            video_id: YouTube video ID
-            is_live: Whether it's a live stream
-            video: True for video download, False for audio download
-        
-        Returns:
-            Path to downloaded file or None if failed
-        """
-        # For live streams, only cookies method works
-        if is_live:
-            logger.info(f"🔴 Live stream detected for {video_id}, using cookies method...")
-            cookie = self.get_cookies()
-            ydl_opts = {
-                "quiet": True,
-                "no_warnings": True,
-                "cookiefile": cookie,
-                "format": "bestaudio/best",
-                "noplaylist": True,
-                "socket_timeout": 20,
-                "extractor_retries": 5,
-                "sleep_interval_requests": 1,
-                "extractor_args": {"youtube": {"player_client": ["android", "web"]}},
-            }
-
-            def _extract_url():
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    try:
-                        info = ydl.extract_info(self.base + video_id, download=False)
-                        if not info:
-                            return None
-
-                        direct = info.get("url")
-                        if direct:
-                            return direct
-
-                        for fmt in info.get("formats", []):
-                            if fmt.get("acodec") != "none" and fmt.get("url"):
-                                return fmt["url"]
-
-                        return info.get("manifest_url")
-                    except Exception as ex:
-                        logger.error(f"Live stream extraction failed: {ex}")
-                        return None
-
-            try:
-                stream_url = await asyncio.wait_for(asyncio.to_thread(_extract_url), timeout=35)
-                if stream_url:
-                    logger.info(f"✅ Live stream URL extracted for {video_id}")
-                return stream_url
-            except asyncio.TimeoutError:
-                logger.error(f"Live stream URL extraction timed out for {video_id}")
-                return None
-
-        # Normal video/audio download - API FIRST, then cookies
-        result = None
-        
-        # Try API first (Primary)
-        if self.enable_api and self.api_url and self.artistbots_key:
-            logger.info(f"🎯 [PRIORITY 1] Trying API download for {video_id}")
-            result = await self.download_via_api(self.base + video_id, video=video)
-            
-            if result:
-                logger.info(f"✅ [SUCCESS] Downloaded via API: {video_id}")
-                return result
-            else:
-                logger.warning(f"⚠️ [API FAILED] {video_id}, trying cookies fallback...")
-        
-        # Try cookies as fallback (Secondary)
-        if self.enable_cookies_fallback:
-            logger.info(f"🍪 [PRIORITY 2] Trying cookies download for {video_id}")
-            result = await self.download_via_cookies(video_id, video=video)
-            
-            if result:
-                logger.info(f"✅ [SUCCESS] Downloaded via cookies: {video_id}")
-                return result
-            else:
-                logger.error(f"❌ [COOKIES FAILED] Could not download {video_id}")
-        
-        # Both methods failed
-        if not result:
-            logger.error(f"❌ [FAILED] All download methods failed for {video_id}")
-        
-        return result
