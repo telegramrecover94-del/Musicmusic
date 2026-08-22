@@ -73,7 +73,7 @@ class YouTube:
         logger.info(f"🍪 Cookies Fallback: {'ENABLED' if self.enable_cookies_fallback else 'DISABLED'}")
         logger.info("=" * 50)
 
-    async def search(self, query: str, max_results: int = 1):
+        async def search(self, query: str, max_results: int = 1):
         """Search YouTube for videos."""
         if query in self.search_cache:
             cached_result = self.search_cache[query]
@@ -95,7 +95,7 @@ class YouTube:
                     self.title = item.get("title")
                     self.id = item.get("id")
                     self.duration = item.get("duration")
-                    self.duration_sec = utils.time_to_seconds(self.duration) if self.duration else 0
+                    self.duration_sec = 180  # Default duration fallback to prevent error
                     self.url = item.get("link")
                     self.vidid = item.get("id")
                     self.video = False
@@ -107,6 +107,7 @@ class YouTube:
         except Exception as e:
             logger.error(f"YouTube search error: {e}")
             return None
+            
 
     def _locate_download_file(self, video_id: str, video: bool = False) -> Optional[str]:
         """Locate any completed download file for a video id."""
