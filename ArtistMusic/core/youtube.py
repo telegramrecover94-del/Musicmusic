@@ -280,7 +280,7 @@ class YouTube:
 
         async with self._download_semaphore:
             cookie = self.get_cookies()
-            proxy_url = os.getenv("PROXY", "http://soucwyed:xa8j3kvuna24@31.59.20.176:6754")
+            proxy_url = os.getenv("PROXY", "http://soucwyed:xa8j3kvuna24@191.96.254.138:6185")
             
             base_opts = {
                 "outtmpl": "downloads/%(id)s.%(ext)s",
